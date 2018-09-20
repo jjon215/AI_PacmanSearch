@@ -116,11 +116,52 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
+    """Search the shallowest nodes in the search tree first."""
+    # We use Position Search problem instance. It's getSuccessors method returns state, action and cost.
+    #  list.pop() pops the last element inserted into it.
+    fringeset = util.Queue()
+    # Set() avoids duplicates thus abiding to principle of not visiting a node more than once in Graph search.
+    nodes_visited = set()
+    # Initially push start state co-ordinates and empty list of directions onto fringe.
+    fringeset.push((problem.getStartState(), [], 0))
+    # The loop executes until all the nodes are dequeued.
+    while not fringeset.isEmpty():
+        state, actions, cost = fringeset.pop()
+        # We check if the popped node's state is equal to goal state.(Goal test).
+        if problem.isGoalState(state):
+            return actions
+        # If the node is already visited we do not push its successors onto fringe thus we avoid cycles in graph search.
+        if state in nodes_visited:
+            continue
+        nodes_visited.add(state)
+        for successor_state, successor_action, step_cost in problem.getSuccessors(state):
+            fringeset.push((successor_state, actions + [successor_action], step_cost))
+    return []
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+    """Search the node of least total cost first."""
+    fringeset = util.PriorityQueue()
+    # Set() avoids duplicates thus abiding to principle of not visiting a node more than once in Graph search.
+    nodes_visited = set()
+    fringeset.push((problem.getStartState(), [], 0), 0)
+    # The loop executes until all the nodes are dequeued.
+    while not fringeset.isEmpty():
+        state, actions, cost = fringeset.pop()
+        # We check if the popped node's state is equal to goal state.(Goal test).
+        if problem.isGoalState(state):
+            return actions
+        # If node is already visited we will not push its successors onto fringe to avoid cycles in graph search.
+        if state in nodes_visited:
+            continue
+        # If the node is not visited we mark it as visited and we push its successors onto the fringe.
+        nodes_visited.add(state)
+        for successor_state, successor_action, step_cost in problem.getSuccessors(state):
+            fringeset.push((successor_state, actions + [successor_action], cost + step_cost), cost + step_cost)
+    # Added as defensive mechanism.
+    return []
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
@@ -133,6 +174,28 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    fringeset = util.PriorityQueue()
+    # Set() avoids duplicates thus abiding to principle of not visiting a node more than once in Graph search.
+    nodes_visited = set()
+    # For astar, cost matters so we pass it as 0 for initial state and priority as 0(cost)+heuristic of start state.
+    fringeset.push((problem.getStartState(), [], 0), 0 + heuristic(problem.getStartState(), problem))
+    # The loop executes until all the nodes are dequeued.
+    while not fringeset.isEmpty():
+        state, actions, cost = fringeset.pop()
+        # We check if the popped node's state is equal to goal state.(Goal test).
+        # If True we return the list of actions for the pacman to reach its Goal state.
+        if problem.isGoalState(state):
+            return actions
+        # If the node is already visited we do not push its successors onto fringe thus we avoid cycles in graph search.
+        if state in nodes_visited:
+            continue
+        # If the node is not visited we mark it as visited and we push its successors onto the fringe.
+        nodes_visited.add(state)
+        for successor_state, action, step_cost in problem.getSuccessors(state):
+            # Here we push our priority as cummulative cost + heuristic.
+            fringeset.push((successor_state, actions + [action], cost + step_cost),
+                        cost + step_cost + heuristic(successor_state, problem))
+    return []
     util.raiseNotDefined()
 
 
