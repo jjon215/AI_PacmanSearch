@@ -87,6 +87,30 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
+    # We use Stack  LIFO. list.pop() pops the last element inserted into it.
+    fringeset = util.Stack()
+    # Set to keep track of nodes visited.
+    # Set() avoids duplicates thus abiding to principle of not visiting a node more than once in Graph search.
+    nodes_visited= set()
+    # Initially push start state co-ordinates and empty list of directions onto stack.
+    fringeset.push((problem.getStartState(), [], 0))
+    # The loop executes till all nodes are popped off the fringe.
+    while not fringeset.isEmpty():
+        state, actions, cost = fringeset.pop()
+        # We check if the popped node's state is equal to goal state.(Goal test).
+        # If this is True we return the list of actions for the pacman to reach its goal state.
+        if problem.isGoalState(state):
+            return actions
+        # If the node is already visited we do not push its successors onto fringe thus we avoid cycles in graph search.
+        if state in nodes_visited:
+            continue
+        # If the node is not visited we mark it as visited and we push its successors onto the fringe.
+        nodes_visited.add(state)
+        for successor_state, successor_action, step_cost in problem.getSuccessors(state):
+            fringeset.push((successor_state, actions + [successor_action], step_cost))
+
+    return []
+
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
